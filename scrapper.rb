@@ -139,6 +139,5 @@ groups.each do |first_char, manufacturers|
       end
     end
   end
-  puts "~ #{first_char}.csv saved. Processing took #{Time.now - start_time}s"
-  exit
+  puts "~ #{first_char}.csv saved. Processing took #{((Time.now - start_time) / 60).round(2)}m"
 end
