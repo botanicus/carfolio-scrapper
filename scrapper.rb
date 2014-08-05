@@ -48,7 +48,6 @@ class Spec < OpenStruct
     'Country',
 
     # Spec-specific.
-    'Year',
     'Vehicle',
     'Body Type',
     'Number of Doors',
@@ -134,7 +133,6 @@ groups.each do |first_char, manufacturers|
     manufacturers.each do |manufacturer|
       puts "  ~> #{manufacturer.name}"
       manufacturer.specs.each do |spec|
-        # puts "     #{spec.to_row}"
         csv << spec.to_row
       end
     end
