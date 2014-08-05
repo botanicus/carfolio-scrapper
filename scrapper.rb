@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+# Hosted at https://gist.github.com/botanicus/024075a0046a43c683b6
+
 require 'open-uri'
 require 'ostruct'
 require 'csv'
@@ -48,45 +50,21 @@ class Spec < OpenStruct
     # Spec-specific.
     'Year',
     'Vehicle',
-    #=["side valve (SV)  2 valves per cylinder 8 valves in total"]
-    #Wheelbase=["3010", "118.5"]
-    #Bore × Stroke=["80 × 180 mm 3.15 × 7.09 in"]
-    #Bore/stroke ratio=["0.44"]
-    #maximum power output=["61 PS (60 bhp) (45 kW)"]
-    #Specific output=["16.6 bhp/litre0.27 bhp/cu in"]
-    #Unitary capacity=["905 cc"]
-    #Aspiration=["Normal"]
-    #Compressor=["N/A"]
-    #Intercooler=["None"]
-    #Catalytic converter=["N"]
-    #Maximum speed=["121 km/h (75 mph)"]
-    #Drive wheels=["rear wheel drive  "]
-    #Torque split=["N/A"]
-    #Brakes F/R=["-/Dr"]
-    #Gearbox=["3 speed manual"]
-    #RAC rating=["15.9"]
-    #Insurance classification=["No information available"]
-    #Tax band=["No information available"]
-    # Continue here!
-    #Engine position=["front"]
-    #Engine coolant=["Water"]
-    #Engine layout=["longitudinal"]
-    'Body Type', #Body type
-    'Number of Doors', #Number of doors
-    'Engine Type', #engine type
-    'Engine Manufacturer', #Engine manufacturer
-    'Engine Code', #Engine code (usually missing)
-    'Cylinders', #
-    'Capacity', #
-    'Fuel System',
-    'Chassis',
+    'Body Type',
+    'Number of Doors',
+    'Engine Type',
+    'Engine Manufacturer',
+    'Engine Code', # usually missing
+    'Cylinders',
+    'Capacity',
+    'Fuel System', # usually missing
     'Drive Wheels',
-    'Tyres Front',
-    'Tyres Rear',
+    'Tyres Front', # usually missing
+    'Tyres Rear',  # usually missing
     'Gearbox',
-    'Carfolio.com ID', #
-    'Date record was added', #
-    'Date record was modified' #
+    'Carfolio.com ID',
+    'Date record was added',
+    'Date record was modified'
   ]
 
   def self.create_from_element(anchor, manufacturer)
@@ -115,7 +93,7 @@ class Spec < OpenStruct
     self['Date record was modified'] = timestamps[1]
   end
 
-  def to_csv
+  def to_row
     self.class::FIELDS.map do |attribute|
       self[attribute]
     end
@@ -124,7 +102,13 @@ class Spec < OpenStruct
   private
   def populate_from_spec_page(row)
     key = row.at_css('th').text rescue 'timestamps'
-    values = row.css('td').map { |td| td.text.tr("\n", ' ').strip } - ['']
+    if corrected_key_name = self.class::FIELDS.find { |attribute| key.downcase == attribute.downcase }
+      key = corrected_key_name
+    end
+
+    # The second replaced value in String#tr here is non-breaking space.
+    # It can be produced by Alt-Space on OS X.
+    values = row.css('td').map { |td| td.text.tr("\n ", '  ').strip } - ['']
     if values.length == 1
       self[key] = values[0]
     elsif values.length > 1
@@ -139,19 +123,22 @@ Dir.chdir('specs')
 
 manufacturers = Manufacturer.parse_specs_page
 groups = manufacturers.group_by do |manufacturer|
-  manufacturer.name[0].downcase
+  manufacturer.name[0].upcase
 end
 
 groups.each do |first_char, manufacturers|
   puts "~ Processing manufacturers starting with '#{first_char}'."
-  CSV.open("#{first_char.upcase}.csv", 'w') do |csv|
+  start_time = Time.now
+  CSV.open("#{first_char}.csv", 'w') do |csv|
     csv << Spec::FIELDS
     manufacturers.each do |manufacturer|
       puts "  ~> #{manufacturer.name}"
       manufacturer.specs.each do |spec|
-        p spec
-        csv << spec.to_csv
+        # puts "     #{spec.to_row}"
+        csv << spec.to_row
       end
     end
   end
+  puts "~ #{first_char}.csv saved. Processing took #{Time.now - start_time}s"
+  exit
 end
