@@ -10,7 +10,7 @@ git clone https://gist.github.com/024075a0046a43c683b6.git scrapper
 bundle
 
 # Run the scrapper.
-./scrapper/scrapper.rb
+bundle exec ./scrapper/scrapper.rb
 ```
 
 After you run the scrapper, you should find a new directory called `specs` with bunch of `csv` files.
