@@ -74,8 +74,8 @@ class Spec < OpenStruct
 
     relative_url = anchor.attribute('href').value
     instance.url  = [self::ROOT_URL, relative_url].join('/')
-    instance['Vehicle'] = anchor.inner_text
-    instance['Year'] = anchor.css('.Year').inner_text
+    instance['Vehicle'] = anchor.text.strip
+    #instance['Year'] = anchor.css('.Year').inner_text
 
     instance.fetch
     instance
