@@ -74,7 +74,8 @@ class Spec < OpenStruct
 
     relative_url = anchor.attribute('href').value
     instance.url  = [self::ROOT_URL, relative_url].join('/')
-    instance['Vehicle'] = anchor.text.strip
+    # There's invalid unicode in http://www.carfolio.com/specifications/models/car/?car=306449
+    instance['Vehicle'] = anchor.text.force_encoding('iso-8859-2').encode('utf-8', invalid: :replace).strip
     #instance['Year'] = anchor.css('.Year').inner_text
 
     instance.fetch
@@ -139,3 +140,4 @@ groups.each do |first_char, manufacturers|
   end
   puts "~ #{first_char}.csv saved. Processing took #{((Time.now - start_time) / 60).round(2)}m"
 end
+puts "\n\n ~ All done. Processing took #{((Time.now - processing_start_time) / 60).round(2)}m"
