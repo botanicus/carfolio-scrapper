@@ -126,6 +126,13 @@ groups = manufacturers.group_by do |manufacturer|
   manufacturer.name[0].upcase
 end
 
+# Start from 'S'.
+# groups = groups.reduce(Hash.new) do |buffer, (first_char, manufacturers)|
+#   buffer.merge!(first_char => manufacturers) if first_char >= 'S'
+#   buffer
+# end
+
+processing_start_time = Time.now
 groups.each do |first_char, manufacturers|
   puts "~ Processing manufacturers starting with '#{first_char}'."
   start_time = Time.now
@@ -139,5 +146,7 @@ groups.each do |first_char, manufacturers|
     end
   end
   puts "~ #{first_char}.csv saved. Processing took #{((Time.now - start_time) / 60).round(2)}m"
+  # Do only 'S'.
+  # exit
 end
 puts "\n\n ~ All done. Processing took #{((Time.now - processing_start_time) / 60).round(2)}m"
