@@ -163,6 +163,7 @@ groups.each do |first_char, manufacturers|
             rescue => error
               warn "[ERROR] #{error.class}: #{error.message} occured when processing spec #{spec.name}. Skipping for now."
             end
+          end
         rescue => error
           warn "[ERROR] #{error.class}: #{error.message} occured when processing manufacturer #{manufacturer.name}. Skipping for now."
         end
