@@ -79,7 +79,8 @@ class Spec < OpenStruct
     relative_url = anchor.attribute('href').value
     instance.url  = [self::ROOT_URL, relative_url].join('/')
     # There's invalid unicode in http://www.carfolio.com/specifications/models/car/?car=306449
-    instance['Vehicle'] = anchor.text.force_encoding('iso-8859-2').encode('utf-8', invalid: :replace).strip
+    instance['Vehicle'] = anchor.text.encode('utf-8', invalid: :replace).strip
+    #force_encoding('iso-8859-2').encode('utf-8', invalid: :replace).strip
     #instance['Year'] = anchor.css('.Year').inner_text
 
     instance.fetch
