@@ -98,7 +98,7 @@ class Spec < OpenStruct
       self['Date record was added'] = timestamps[0]
       self['Date record was modified'] = timestamps[1]
     rescue
-      warn "[WARNING] No timestamps for #{self.name}"
+      warn "[WARNING] No timestamps found for #{self.inspect}."
     end
   end
 
