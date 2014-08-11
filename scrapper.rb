@@ -93,9 +93,13 @@ class Spec < OpenStruct
       populate_from_spec_page(row)
     end
 
-    timestamps = self.timestamps.scan(/\d{4}-\d{2}-\d{2}/)
-    self['Date record was added'] = timestamps[0]
-    self['Date record was modified'] = timestamps[1]
+    begin
+      timestamps = self.timestamps.scan(/\d{4}-\d{2}-\d{2}/)
+      self['Date record was added'] = timestamps[0]
+      self['Date record was modified'] = timestamps[1]
+    rescue
+      warn "[WARNING] No timestamps for #{self.name}"
+    end
   end
 
   def to_row
