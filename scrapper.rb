@@ -15,7 +15,11 @@ class Manufacturer < OpenStruct
 
   def self.parse_specs_page
     document = Nokogiri::HTML(open(self::ROOT_URL))
-    document.css('li.m').map do |li|
+    elements = document.css('li.m') +
+               document.css('li.m1') +
+               document.css('li.m2') +
+               document.css('li.m3')
+    elements.map do |li|
       Manufacturer.create_from_element(li)
     end
   end
@@ -129,6 +133,17 @@ end
 # Start from 'S'.
 # groups = groups.reduce(Hash.new) do |buffer, (first_char, manufacturers)|
 #   buffer.merge!(first_char => manufacturers) if first_char >= 'S'
+#   buffer
+# end
+
+# Ford only.
+# groups = groups.reduce(Hash.new) do |buffer, (first_char, manufacturers)|
+#   if manufacturers.any? { |manufacturer| manufacturer.name == 'Ford' }
+#     buffer.merge!(first_char => manufacturers.select { |manufacturer|
+#       manufacturer.name == 'Ford'
+#     })
+#   end
+
 #   buffer
 # end
 
