@@ -154,19 +154,18 @@ groups.each do |first_char, manufacturers|
   start_time = Time.now
   CSV.open("#{first_char}.csv", 'w') do |csv|
     csv << Spec::FIELDS
-      manufacturers.each do |manufacturer|
-        begin
-          puts "  ~> #{manufacturer.name}"
-          manufacturer.specs.each do |spec|
-            begin
-              csv << spec.to_row
-            rescue => error
-              warn "[ERROR] #{error.class}: #{error.message} occured when processing spec #{spec.name}. Skipping for now."
-            end
+    manufacturers.each do |manufacturer|
+      begin
+        puts "  ~> #{manufacturer.name}"
+        manufacturer.specs.each do |spec|
+          begin
+            csv << spec.to_row
+          rescue => error
+            warn "[ERROR] #{error.class}: #{error.message} occured when processing spec #{spec.name}. Skipping for now."
           end
-        rescue => error
-          warn "[ERROR] #{error.class}: #{error.message} occured when processing manufacturer #{manufacturer.name}. Skipping for now."
         end
+      rescue => error
+        warn "[ERROR] #{error.class}: #{error.message} occured when processing manufacturer #{manufacturer.name}. Skipping for now."
       end
     end
   end
