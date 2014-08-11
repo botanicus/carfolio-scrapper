@@ -157,7 +157,11 @@ groups.each do |first_char, manufacturers|
     manufacturers.each do |manufacturer|
       puts "  ~> #{manufacturer.name}"
       manufacturer.specs.each do |spec|
-        csv << spec.to_row
+        begin
+          csv << spec.to_row
+        rescue => error
+          warn "[ERROR] #{error.class}: #{error.message} occured when processing #{spec.name}. Skipping for now."
+        end
       end
     end
   end
