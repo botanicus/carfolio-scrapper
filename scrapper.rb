@@ -16,6 +16,7 @@ class Manufacturer < OpenStruct
   def self.document
     @document ||= Nokogiri::HTML(open(self::ROOT_URL))
   rescue
+    warn "~ Retrying: get the spec page."
     retry
   end
 
@@ -146,10 +147,14 @@ groups = manufacturers.group_by do |manufacturer|
 end
 
 # Start from 'S'.
-# groups = groups.reduce(Hash.new) do |buffer, (first_char, manufacturers)|
-#   buffer.merge!(first_char => manufacturers) if first_char >= 'S'
-#   buffer
-# end
+groups = groups.reduce(Hash.new) do |buffer, (first_char, manufacturers)|
+  if ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'].include?(first_char)
+  # if ['J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S'].include?(first_char)
+  # if ['T', 'U', 'V', 'W', 'X', 'Y', 'Z'].include?(first_char)
+    buffer.merge!(first_char => manufacturers)
+  end
+  buffer
+end
 
 # Ford only.
 # groups = groups.reduce(Hash.new) do |buffer, (first_char, manufacturers)|
