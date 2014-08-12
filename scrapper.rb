@@ -99,6 +99,11 @@ class Spec < OpenStruct
       self['Date record was modified'] = timestamps[1]
     rescue
       warn "[WARNING] No timestamps found for #{self.inspect}."
+      document.css('table.specs tr').map do |row|
+        key = row.at_css('th').text rescue 'timestamps'
+        vls = row.css('td').map { |td| td.text.tr("\n ", '  ').strip } - ['']
+        warn("#{key}: #{vls.inspect}")
+      end
     end
   end
 
@@ -161,15 +166,21 @@ groups.each do |first_char, manufacturers|
     manufacturers.each do |manufacturer|
       begin
         puts "  ~> #{manufacturer.name}"
+        attempts = 0
         manufacturer.specs.each do |spec|
           begin
+            spec_attempts = 0
             csv << spec.to_row
           rescue => error
-            warn "[ERROR] #{error.class}: #{error.message} occured when processing spec #{spec.name}. Skipping for now."
+            should_retry = spec_attempts < 3; spec_attempts += 1
+            warn "[ERROR] #{error.class}: #{error.message} occured when processing spec #{spec.name}. #{should_retry ? "Retrying." : "Skipping for now"}."
+            retry if should_retry
           end
         end
       rescue => error
-        warn "[ERROR] #{error.class}: #{error.message} occured when processing manufacturer #{manufacturer.name}. Skipping for now."
+        should_retry = attempts < 3; attempts += 1
+        warn "[ERROR] #{error.class}: #{error.message} occured when processing manufacturer #{manufacturer.name}. #{should_retry ? "Retrying." : "Skipping for now"}."
+        retry if should_retry
       end
     end
   end
