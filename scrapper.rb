@@ -13,12 +13,17 @@ require 'nokogiri'
 class Manufacturer < OpenStruct
   ROOT_URL = 'http://www.carfolio.com/specifications'
 
+  def self.document
+    @document ||= Nokogiri::HTML(open(self::ROOT_URL))
+  rescue
+    retry
+  end
+
   def self.parse_specs_page
-    document = Nokogiri::HTML(open(self::ROOT_URL))
-    elements = document.css('li.m') +
-               document.css('li.m1') +
-               document.css('li.m2') +
-               document.css('li.m3')
+    elements = self.document.css('li.m') +
+               self.document.css('li.m1') +
+               self.document.css('li.m2') +
+               self.document.css('li.m3')
     elements.map do |li|
       Manufacturer.create_from_element(li)
     end
