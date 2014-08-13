@@ -12,6 +12,15 @@ require 'timeout'
 
 require 'nokogiri'
 
+# Note about logging: when it goes to STDERR,
+# it works fine, everything is written immediately.
+# On the other hand, when using STDOUT (with &>> logfile)
+# alongside with STDERR, STDERR is written immediately,
+# but STDOUT only when the process exists. WTF?
+#
+# Apparently the same goes for writing to the CSV:
+# nothing happens until it's all done or I kill the process.
+
 PROXY_LIST = [
   '83.84.168.79:80',
   '81.136.218.30:19829',
