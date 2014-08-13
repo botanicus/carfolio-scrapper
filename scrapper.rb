@@ -300,11 +300,11 @@ def open(url, *args)
     while chunk = response.body.readpartial
       body += chunk
     end
-    warn "[LOG] HTTP #{response.status}"
+    puts "[LOG] HTTP #{response.status}"
     return body
   end
 rescue IOError, Timeout::Error, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, UnexpectedHttpStatusError => error
-  warn "[ERROR] #{error.class} #{error.message}. Proxy was: #{proxy.first}. Retrying with a different proxy."
+  puts "[ERROR] #{error.class} #{error.message}. Proxy was: #{proxy.first}. Retrying with a different proxy."
   retry
 end
 
@@ -316,7 +316,7 @@ class Manufacturer < OpenStruct
   def self.document
     @document ||= Nokogiri::HTML(open(self::ROOT_URL))
   # rescue
-  #   warn "~ Retrying: get the spec page."
+  #   puts "~ Retrying: get the spec page."
   #   retry
   end
 
@@ -404,11 +404,11 @@ class Spec < OpenStruct
       self['Date record was added'] = timestamps[0]
       self['Date record was modified'] = timestamps[1]
     rescue
-      warn "[WARNING] No timestamps found for #{self.inspect}."
+      puts "[WARNING] No timestamps found for #{self.inspect}."
       document.css('table.specs tr').map do |row|
         key = row.at_css('th').text rescue 'timestamps'
         vls = row.css('td').map { |td| td.text.tr("\n ", '  ').strip } - ['']
-        warn("#{key}: #{vls.inspect}")
+        puts("#{key}: #{vls.inspect}")
       end
     end
   end
@@ -481,13 +481,13 @@ groups.each do |first_char, manufacturers|
             csv << spec.to_row
           rescue => error
             should_retry = spec_attempts < 3; spec_attempts += 1
-            warn "[ERROR] #{error.class}: #{error.message} occured when processing spec #{spec.name}. #{should_retry ? "Retrying." : "Skipping for now"}."
+            puts "[ERROR] #{error.class}: #{error.message} occured when processing spec #{spec.name}. #{should_retry ? "Retrying." : "Skipping for now"}."
             retry if should_retry
           end
         end
       rescue => error
         should_retry = attempts < 3; attempts += 1
-        warn "[ERROR] #{error.class}: #{error.message} occured when processing manufacturer #{manufacturer.name}. #{should_retry ? "Retrying." : "Skipping for now"}."
+        puts "[ERROR] #{error.class}: #{error.message} occured when processing manufacturer #{manufacturer.name}. #{should_retry ? "Retrying." : "Skipping for now"}."
         retry if should_retry
       end
     end
