@@ -5,8 +5,77 @@
 require 'open-uri'
 require 'ostruct'
 require 'csv'
+require 'timeout'
 
 require 'nokogiri'
+
+PROXY_LIST = [
+ '149.255.255.242:80',
+ '101.55.12.75:1080',
+ '221.181.104.11:8080',
+ '183.221.245.207:80',
+ '176.215.1.224:3128',
+ '149.255.255.250:80',
+ '109.185.116.199:8080',
+ '111.13.12.216:80',
+ '183.224.1.113:8080',
+ '119.46.110.17:8080',
+ '117.59.217.236:81',
+ '119.46.110.17:80',
+ '218.108.170.168:80',
+ '101.64.236.206:18000',
+ '202.195.192.197:3128',
+ '112.124.51.136:808',
+ '217.12.201.22:3128',
+ '188.241.141.112:8089',
+ '62.244.31.16:7808',
+ '115.114.148.71:80',
+ '199.200.120.140:8089',
+ '107.182.135.43:3127',
+ '199.200.120.140:3127',
+ '204.12.235.23:7808',
+ '117.211.83.18:3128',
+ '113.214.13.1:8000',
+ '202.106.16.36:3128',
+ '119.188.46.42:8080',
+ '115.182.64.108:8080',
+ '190.36.18.17:8080',
+ '222.87.129.30:80',
+ '61.135.153.22:80',
+ '121.179.211.221:3128',
+ '114.112.91.116:90',
+ '211.77.5.38:3128',
+ '222.87.129.29:80',
+ '66.85.131.18:7808',
+ '119.4.115.51:8090',
+ '202.185.27.34:3128',
+ '183.57.78.93:80'
+]
+
+def get_random_proxy
+  PROXY_LIST[rand(PROXY_LIST.length)]
+end
+
+alias __open__ open
+
+def open(url, *args)
+  unless url.match(/webcache.googleusercontent.com/)
+    url = "http://webcache.googleusercontent.com/search?q=cache:#{url}"
+  end
+
+  Timeout.timeout(2.5) do
+    __open__(url,
+      'User-Agent' => 'Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)',
+      'proxy' => "http://#{get_random_proxy}/")
+  end
+rescue Timeout::Error
+  warn '[ERROR] Timed out, retrying.'
+  retry
+rescue OpenURI::HTTPError => error
+  warn "[ERROR] HTTP Error: #{error.message}"
+  sleep 0.5
+  retry
+end
 
 # Manufacturer can have number of specs.
 # I. e. Alma > 1926 Alma Six.
@@ -94,7 +163,7 @@ class Spec < OpenStruct
   end
 
   def fetch
-    document = Nokogiri::HTML(open(self.url))
+    document = Nokogiri::HTML(open(self.url).read)
     document.css('table.specs tr').map do |row|
       populate_from_spec_page(row)
     end
@@ -148,9 +217,9 @@ end
 
 # Start from 'S'.
 groups = groups.reduce(Hash.new) do |buffer, (first_char, manufacturers)|
-  if ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'].include?(first_char)
+  # if ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'].include?(first_char)
   # if ['J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S'].include?(first_char)
-  # if ['T', 'U', 'V', 'W', 'X', 'Y', 'Z'].include?(first_char)
+  if ['T', 'U', 'V', 'W', 'X', 'Y', 'Z'].include?(first_char)
     buffer.merge!(first_char => manufacturers)
   end
   buffer
