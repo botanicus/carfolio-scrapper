@@ -122,7 +122,6 @@ PROXY_LIST = [
   '199.200.120.140:8089',
   '78.40.176.22:8088',
   '107.182.135.43:3127',
-  '199.200.120.140:312.189.56:8080',
   '66.35.68.145:8089',
   '117.211.83.18:3128',
   '218.204.65.128:8123',
@@ -176,7 +175,6 @@ PROXY_LIST = [
   '113.53.250.62:8080',
   '190.203.72.158:8080',
   '61.135.153.22:80',
-  '183.220',
   '190.78.190.109:8080',
   '85.185.42.3:8080',
   '190.198.83.144:8080',
@@ -284,7 +282,7 @@ alias __open__ open
 
 class UnexpectedHttpStatusError < StandardError
   def initialize(response)
-    super("Unexpected HTTP status: #{repsonse.status}")
+    super("Unexpected HTTP status: #{response.status}")
   end
 end
 
@@ -293,9 +291,10 @@ def open(url, *args)
     url = "http://webcache.googleusercontent.com/search?q=cache:#{url}"
   end
 
-  Timeout.timeout(2.5) do
+  proxy = get_random_proxy
+  Timeout.timeout(24) do
     response = HTTP.with_headers('User-Agent' => USER_AGENT).
-         via(*get_random_proxy).get(url)
+         via(*proxy).get(url)
     unless response.status == 200
       # Try with a different proxy.
       raise UnexpectedHttpStatusError.new(response)
@@ -306,8 +305,8 @@ def open(url, *args)
     end
     return body
   end
-rescue IOError, Timeout::Error, UnexpectedHttpStatusError => error
-  warn "[ERROR] #{error.message}. Retrying with a different proxy."
+rescue IOError, Timeout::Error, Errno::ECONNREFUSED, UnexpectedHttpStatusError => error
+  warn "[ERROR] #{error.class} #{error.message}. Proxy was: #{proxy.first}. Retrying with a different proxy."
   retry
 end
 
