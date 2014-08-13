@@ -5,7 +5,6 @@
 # 2 hrs.
 # 10:50
 
-require 'open-uri'
 require 'http'
 require 'ostruct'
 require 'csv'
@@ -278,8 +277,6 @@ def get_random_proxy
   [ip, port.to_i]
 end
 
-alias __open__ open
-
 class UnexpectedHttpStatusError < StandardError
   def initialize(response)
     super("Unexpected HTTP status: #{response.status}")
@@ -303,6 +300,7 @@ def open(url, *args)
     while chunk = response.body.readpartial
       body += chunk
     end
+    warn "[LOG] HTTP #{response.status}"
     return body
   end
 rescue IOError, Timeout::Error, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, UnexpectedHttpStatusError => error
