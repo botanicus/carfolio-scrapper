@@ -300,11 +300,11 @@ def open(url, *args)
     while chunk = response.body.readpartial
       body += chunk
     end
-    puts "[LOG] HTTP #{response.status} #{url}"
+    STDERR.puts "[LOG] HTTP #{response.status} #{url}"
     return body
   end
 rescue IOError, Timeout::Error, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError, UnexpectedHttpStatusError => error
-  puts "[ERROR] #{error.class} #{error.message}. Proxy was: #{proxy.first}. Retrying with a different proxy."
+  STDERR.puts "[ERROR] #{error.class} #{error.message}. Proxy was: #{proxy.first}. Retrying with a different proxy."
   retry
 end
 
@@ -316,7 +316,7 @@ class Manufacturer < OpenStruct
   def self.document
     @document ||= Nokogiri::HTML(open(self::ROOT_URL))
   # rescue
-  #   puts "~ Retrying: get the spec page."
+  #   STDERR.puts "~ Retrying: get the spec page."
   #   retry
   end
 
@@ -404,11 +404,11 @@ class Spec < OpenStruct
       self['Date record was added'] = timestamps[0]
       self['Date record was modified'] = timestamps[1]
     rescue
-      puts "[WARNING] No timestamps found for #{self.inspect}."
+      STDERR.puts "[WARNING] No timestamps found for #{self.inspect}."
       document.css('table.specs tr').map do |row|
         key = row.at_css('th').text rescue 'timestamps'
         vls = row.css('td').map { |td| td.text.tr("\n ", '  ').strip } - ['']
-        puts("#{key}: #{vls.inspect}")
+        STDERR.puts("#{key}: #{vls.inspect}")
       end
     end
   end
@@ -467,13 +467,13 @@ end
 
 processing_start_time = Time.now
 groups.each do |first_char, manufacturers|
-  puts "~ Processing manufacturers starting with '#{first_char}'."
+  STDERR.puts "~ Processing manufacturers starting with '#{first_char}'."
   start_time = Time.now
   CSV.open("#{first_char}.csv", 'w') do |csv|
     csv << Spec::FIELDS
     manufacturers.each do |manufacturer|
       begin
-        puts "  ~> #{manufacturer.name}"
+        STDERR.puts "  ~> #{manufacturer.name}"
         attempts = 0
         manufacturer.specs.each do |spec|
           begin
@@ -481,19 +481,19 @@ groups.each do |first_char, manufacturers|
             csv << spec.to_row
           rescue => error
             should_retry = spec_attempts < 3; spec_attempts += 1
-            puts "[ERROR] #{error.class}: #{error.message} occured when processing spec #{spec.name}. #{should_retry ? "Retrying." : "Skipping for now"}."
+            STDERR.puts "[ERROR] #{error.class}: #{error.message} occured when processing spec #{spec.name}. #{should_retry ? "Retrying." : "Skipping for now"}."
             retry if should_retry
           end
         end
       rescue => error
         should_retry = attempts < 3; attempts += 1
-        puts "[ERROR] #{error.class}: #{error.message} occured when processing manufacturer #{manufacturer.name}. #{should_retry ? "Retrying." : "Skipping for now"}."
+        STDERR.puts "[ERROR] #{error.class}: #{error.message} occured when processing manufacturer #{manufacturer.name}. #{should_retry ? "Retrying." : "Skipping for now"}."
         retry if should_retry
       end
     end
   end
-  puts "~ #{first_char}.csv saved. Processing took #{((Time.now - start_time) / 60).round(2)}m"
+  STDERR.puts "~ #{first_char}.csv saved. Processing took #{((Time.now - start_time) / 60).round(2)}m"
   # Do only 'S'.
   # exit
 end
-puts "\n\n ~ All done. Processing took #{((Time.now - processing_start_time) / 60).round(2)}m"
+STDERR.puts "\n\n ~ All done. Processing took #{((Time.now - processing_start_time) / 60).round(2)}m"
