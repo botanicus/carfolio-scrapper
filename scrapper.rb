@@ -300,10 +300,10 @@ def open(url, *args)
     while chunk = response.body.readpartial
       body += chunk
     end
-    puts "[LOG] HTTP #{response.status}"
+    puts "[LOG] HTTP #{response.status} #{url}"
     return body
   end
-rescue IOError, Timeout::Error, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, UnexpectedHttpStatusError => error
+rescue IOError, Timeout::Error, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError, UnexpectedHttpStatusError => error
   puts "[ERROR] #{error.class} #{error.message}. Proxy was: #{proxy.first}. Retrying with a different proxy."
   retry
 end
