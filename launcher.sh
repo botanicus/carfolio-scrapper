@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 rm scrapper.log
 
 for char in {A..Z}; do
   echo "~ Launching worker for $char."
-  bundle exec ./scrapper.rb $char &>> scrapper.log
+  nohup bundle exec ./scrapper.rb $char &>> scrapper.log &
 done
