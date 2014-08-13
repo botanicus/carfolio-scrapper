@@ -305,7 +305,7 @@ def open(url, *args)
     end
     return body
   end
-rescue IOError, Timeout::Error, Errno::ECONNREFUSED, UnexpectedHttpStatusError => error
+rescue IOError, Timeout::Error, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, UnexpectedHttpStatusError => error
   warn "[ERROR] #{error.class} #{error.message}. Proxy was: #{proxy.first}. Retrying with a different proxy."
   retry
 end

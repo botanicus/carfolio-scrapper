@@ -1,6 +1,7 @@
 #!/bin/bash
 
 rm scrapper.log
+rm -rf specs
 
 for char in {A..Z}; do
   echo "~ Launching worker for $char."
