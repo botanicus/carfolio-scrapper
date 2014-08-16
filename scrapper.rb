@@ -28,8 +28,8 @@ $stdout.sync = true
 
 # Main.
 Dir.mkdir('specs') unless Dir.exist?('specs')
+Dir.mkdir('data')  unless Dir.exist?('data')
 Dir.chdir('specs')
-Dir.chdir('data')
 
 # Group manufacturers by the first letter.
 manufacturers = Manufacturer.parse_specs_page
