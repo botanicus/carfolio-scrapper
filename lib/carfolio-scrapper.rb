@@ -11,7 +11,7 @@ class UnexpectedHttpStatusError < StandardError
   end
 end
 
-@tor = TorProxy.new
+$tor = TorProxy.new
 
 def open(url, *args)
   unless url.match(/webcache.googleusercontent.com/)
@@ -33,6 +33,6 @@ def open(url, *args)
   end
 rescue IOError, Timeout::Error, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError, UnexpectedHttpStatusError => error
   STDERR.puts "[ERROR] #{error.class} #{error.message}. Retrying."
-  @tor.switch
+  $tor.switch
   retry
 end
