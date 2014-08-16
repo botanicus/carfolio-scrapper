@@ -8,9 +8,6 @@ class Manufacturer < OpenStruct
 
   def self.document
     @document ||= Nokogiri::HTML(open(self::ROOT_URL))
-  # rescue
-  #   STDERR.puts "~ Retrying: get the spec page."
-  #   retry
   end
 
   def self.parse_specs_page
@@ -20,6 +17,8 @@ class Manufacturer < OpenStruct
                self.document.css('li.m3')
     elements.map do |li|
       Manufacturer.create_from_element(li)
+    end.sort_by do |manufacturer|
+      "#{manufacturer.name}-#{manufacturer.country}"
     end
   end
 

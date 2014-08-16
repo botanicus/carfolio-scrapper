@@ -19,6 +19,8 @@ end
 
 $tor = TorProxy.new
 
+USER_AGENT = 'Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)'
+
 def get(url)
   Timeout.timeout(24) do
     response = HTTP.with_headers('User-Agent' => USER_AGENT).get(url)
@@ -36,7 +38,7 @@ def get(url)
     return body
   end
 rescue IOError, Timeout::Error, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError, UnexpectedHttpStatusError => error
-  STDERR.puts "[ERROR] #{error.class} #{error.message}. Retrying."
+  STDERR.puts "[ERROR] #{error.class} #{error.message}. Requesting new IP & retrying."
   $tor.switch
   retry
 end
