@@ -11,16 +11,20 @@ class UnexpectedHttpStatusError < StandardError
   end
 end
 
+class NotFoundError < StandardError
+  def initialize(url)
+    super("Not found: #{url}")
+  end
+end
+
 $tor = TorProxy.new
 
-def open(url, *args)
-  unless url.match(/webcache.googleusercontent.com/)
-    url = "http://webcache.googleusercontent.com/search?q=cache:#{url}"
-  end
-
+def get(url)
   Timeout.timeout(24) do
     response = HTTP.with_headers('User-Agent' => USER_AGENT).get(url)
-    unless response.status == 200
+    if response.status == 404
+      raise NotFoundError.new(url)
+    elsif response.status != 200
       # Retry with a different IP.
       raise UnexpectedHttpStatusError.new(url, response)
     end
@@ -35,4 +39,10 @@ rescue IOError, Timeout::Error, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Socket
   STDERR.puts "[ERROR] #{error.class} #{error.message}. Retrying."
   $tor.switch
   retry
+end
+
+def open(url, *args)
+  get "http://webcache.googleusercontent.com/search?q=cache:#{url}"
+rescue NotFoundError
+  get url
 end
