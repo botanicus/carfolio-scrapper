@@ -7,6 +7,8 @@ GEM
     mini_portile (0.6.0)
     nokogiri (1.6.3.1)
       mini_portile (= 0.6.0)
+    socksify (1.5.0)
+    tor (0.1.2)
 
 PLATFORMS
   ruby
@@ -14,3 +16,5 @@ PLATFORMS
 DEPENDENCIES
   http
   nokogiri
+  socksify
+  tor
