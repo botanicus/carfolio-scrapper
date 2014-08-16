@@ -48,6 +48,7 @@ def open(url)
   digest = Digest::SHA2.hexdigest(url)
   path = File.join('data', "#{digest}.html")
   if File.exist?(path)
+    puts "[CACHE] #{url}"
     File.read(path)
   else
     request(url).tap do |body|
