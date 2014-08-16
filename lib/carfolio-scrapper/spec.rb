@@ -56,11 +56,11 @@ class Spec < OpenStruct
       self['Date record was added'] = timestamps[0]
       self['Date record was modified'] = timestamps[1]
     rescue
-      STDERR.puts "[WARNING] No timestamps found for #{self.inspect}."
+      warn "[WARNING] No timestamps found for #{self.inspect}."
       document.css('table.specs tr').map do |row|
         key = row.at_css('th').text rescue 'timestamps'
         vls = row.css('td').map { |td| td.text.tr("\n ", '  ').strip } - ['']
-        STDERR.puts("#{key}: #{vls.inspect}")
+        warn("#{key}: #{vls.inspect}")
       end
     end
   end

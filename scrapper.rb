@@ -53,7 +53,8 @@ overall_time_in_mins = time do
           begin
             puts "  ~> #{manufacturer.name}"
             attempts = 0
-            manufacturer.specs.each do |spec|
+            specs = manufacturer.specs
+            while spec = specs.shift
               begin
                 spec_attempts = 0
                 csv << spec.to_row
