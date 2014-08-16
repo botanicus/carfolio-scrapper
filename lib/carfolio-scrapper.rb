@@ -6,8 +6,8 @@ require_relative 'carfolio-scrapper/manufacturer'
 require_relative 'carfolio-scrapper/spec'
 
 class UnexpectedHttpStatusError < StandardError
-  def initialize(response)
-    super("Unexpected HTTP status: #{response.status}")
+  def initialize(url, response)
+    super("Unexpected HTTP status: #{response.status} on #{url}")
   end
 end
 
@@ -22,7 +22,7 @@ def open(url, *args)
     response = HTTP.with_headers('User-Agent' => USER_AGENT).get(url)
     unless response.status == 200
       # Retry with a different IP.
-      raise UnexpectedHttpStatusError.new(response)
+      raise UnexpectedHttpStatusError.new(url, response)
     end
     body = ''
     while chunk = response.body.readpartial
