@@ -32,7 +32,7 @@ def open(url, *args)
     return body
   end
 rescue IOError, Timeout::Error, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError, UnexpectedHttpStatusError => error
-  STDERR.puts "[ERROR] #{error.class} #{error.message}. Proxy was: #{proxy.first}. Retrying with a different proxy."
+  STDERR.puts "[ERROR] #{error.class} #{error.message}. Retrying."
   @tor.switch
   retry
 end
