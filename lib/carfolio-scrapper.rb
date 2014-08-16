@@ -22,7 +22,7 @@ $tor = TorProxy.new
 USER_AGENT = 'Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)'
 
 def get(url)
-  Timeout.timeout(24) do
+  Timeout.timeout(12) do
     response = HTTP.with_headers('User-Agent' => USER_AGENT).get(url)
     if response.status == 404
       raise NotFoundError.new(url)
@@ -37,7 +37,7 @@ def get(url)
     STDERR.puts "[LOG] HTTP #{response.status} #{url}"
     return body
   end
-rescue IOError, Timeout::Error, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError, UnexpectedHttpStatusError => error
+rescue Timeout::Error, IOError, SOCKSError::TTLExpired, Net::ReadTimeout, Net::OpenTimeout, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError, UnexpectedHttpStatusError => error
   STDERR.puts "[ERROR] #{error.class} #{error.message}. Requesting new IP & retrying."
   $tor.switch
   retry
@@ -47,4 +47,15 @@ def open(url, *args)
   get "http://webcache.googleusercontent.com/search?q=cache:#{url}"
 rescue NotFoundError
   get url
+end
+
+def time(&block)
+  start_time = Time.now
+  block.call
+  ((Time.now - start_time) / 60).round(2)
+end
+
+def log_error(label, error, should_retry)
+  action = should_retry ? "Retrying." : "Skipping for now."
+  warn "[ERROR] #{error.class}: #{error.message} occured when #{label}. #{action}"
 end

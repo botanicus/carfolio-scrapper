@@ -1,10 +1,11 @@
 #!/usr/bin/env ruby
 
-# 7 hrs
+# Usage:
+# ./scrapper.rb A     # Run for manufacturers starting with A.
+# ./scrapper.rb A B C # Run for manufacturers starting with A-C.
+# ./scrapper.rb       # Run for all manufacturers.
 
-if ARGV.empty?
-  abort "Usage: #{$0} A B C # Run scrapping for manufacturers starting with A-C."
-end
+ARGV.push(*('A'..'Z').to_a) if ARGV.empty?
 
 require_relative './lib/carfolio-scrapper'
 
@@ -18,17 +19,22 @@ require 'csv'
 #
 # Apparently the same goes for writing to the CSV:
 # nothing happens until it's all done or I kill the process.
+#
+# That's why we need this:
+
+$stdout.sync = true
 
 # Main.
 Dir.mkdir('specs') unless Dir.exist?('specs')
 Dir.chdir('specs')
 
+# Group manufacturers by the first letter.
 manufacturers = Manufacturer.parse_specs_page
 groups = manufacturers.group_by do |manufacturer|
   manufacturer.name[0].upcase
 end
 
-# Only specified letters (from ARGV).
+# Filter only specified letters (from ARGV).
 groups = groups.reduce(Hash.new) do |buffer, (first_char, manufacturers)|
   if ARGV.include?(first_char)
     buffer.merge!(first_char => manufacturers)
@@ -36,21 +42,16 @@ groups = groups.reduce(Hash.new) do |buffer, (first_char, manufacturers)|
   buffer
 end
 
-def time(&block)
-  start_time = Time.now
-  block.call
-  ((Time.now - start_time) / 60).round(2)
-end
-
 overall_time_in_mins = time do
-  groups.each do |first_char, manufacturers|
-    STDERR.puts "~ Processing manufacturers starting with '#{first_char}'."
+  ARGV.sort.each do |first_char|
+    puts "~ Processing manufacturers starting with '#{first_char}'."
+
     time_per_letter_in_mins = time do
       CSV.open("#{first_char}.csv", 'w') do |csv|
         csv << Spec::FIELDS
-        manufacturers.each do |manufacturer|
+        while manufacturer = groups[first_char].shift
           begin
-            STDERR.puts "  ~> #{manufacturer.name}"
+            puts "  ~> #{manufacturer.name}"
             attempts = 0
             manufacturer.specs.each do |spec|
               begin
@@ -58,21 +59,21 @@ overall_time_in_mins = time do
                 csv << spec.to_row
               rescue => error
                 should_retry = spec_attempts < 3; spec_attempts += 1
-                STDERR.puts "[ERROR] #{error.class}: #{error.message} occured when processing spec #{spec.name}. #{should_retry ? "Retrying." : "Skipping for now"}."
+                log_error("processing spec #{spec.name}", error, should_retry)
                 retry if should_retry
               end
             end
           rescue => error
             should_retry = attempts < 3; attempts += 1
-            STDERR.puts "[ERROR] #{error.class}: #{error.message} occured when processing manufacturer #{manufacturer.name}. #{should_retry ? "Retrying." : "Skipping for now"}."
+            log_error("processing manufacturer #{manufacturer.name}", error, should_retry)
             retry if should_retry
           end
         end
       end
     end
 
-    STDERR.puts "~ #{first_char}.csv saved. Processing took #{time_per_letter_in_mins}m"
+    puts "~ #{first_char}.csv saved. Processing took #{time_per_letter_in_mins}m"
   end
 end
 
-STDERR.puts "\n\n ~ All done. Processing took #{overall_time_in_mins}m"
+puts "\n\n ~ All done. Processing took #{overall_time_in_mins}m"

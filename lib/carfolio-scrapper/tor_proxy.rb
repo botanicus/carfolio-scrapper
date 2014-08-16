@@ -39,5 +39,7 @@ class TorProxy
     end
 
     localhost.close
+  rescue Errno::ECONNREFUSED => error
+    raise "#{error.message}. Is Tor running?"
   end
 end
