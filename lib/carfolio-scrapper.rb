@@ -1,5 +1,6 @@
 require 'http'
 require 'timeout'
+require 'digest'
 
 require_relative 'carfolio-scrapper/tor_proxy'
 require_relative 'carfolio-scrapper/manufacturer'
@@ -43,7 +44,21 @@ rescue Timeout::Error, IOError, SOCKSError::TTLExpired, Net::ReadTimeout, Net::O
   retry
 end
 
-def open(url, *args)
+def open(url)
+  digest = Digest::SHA2.hexdigest(url)
+  path = File.join('data', "#{digest}.html")
+  if File.exist?(path)
+    File.read(path)
+  else
+    request(url).tap do |body|
+      File.open(path, 'w') do |file|
+        file.puts(body)
+      end
+    end
+  end
+end
+
+def request(url)
   get "http://webcache.googleusercontent.com/search?q=cache:#{url}"
 rescue NotFoundError
   get url
