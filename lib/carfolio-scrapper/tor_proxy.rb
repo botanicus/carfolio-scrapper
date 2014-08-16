@@ -30,12 +30,17 @@ class TorProxy
                                  'Port' => @control_port,
                                  'Timeout' => @circuit_timeout,
                                  'Prompt' => /250 OK\n/)
-    localhost.cmd('AUTHENTICATE') do |c|
-      throw "cannot authenticate to Tor!" if c != "250 OK\n"
+
+    localhost.cmd('AUTHENTICATE') do |response|
+      unless response == "250 OK\n"
+        raise 'Cannot authenticate!'
+      end
     end
 
-    localhost.cmd('SIGNAL NEWNYM') do |c|
-      throw "cannot switch Tor to new route!" if c != "250 OK\n"
+    localhost.cmd('SIGNAL NEWNYM') do |response|
+      unless response == "250 OK\n"
+        raise 'Cannot switch Tor to a new route!'
+      end
     end
 
     localhost.close

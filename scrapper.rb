@@ -50,6 +50,7 @@ overall_time_in_mins = time do
       CSV.open("#{first_char}.csv", 'w') do |csv|
         csv << Spec::FIELDS
         while manufacturer = groups[first_char].shift
+          File.open("dump-#{Time.now.to_i}", 'w') { |file| ObjectSpace.each_object { |object| file.puts(object.inspect) } }
           begin
             puts "  ~> #{manufacturer.name}"
             attempts = 0
