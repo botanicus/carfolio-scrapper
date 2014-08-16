@@ -5,6 +5,8 @@
 # ./scrapper.rb A B C # Run for manufacturers starting with A-C.
 # ./scrapper.rb       # Run for all manufacturers.
 
+puts "PID #{Process.pid}"
+
 ARGV.push(*('A'..'Z').to_a) if ARGV.empty?
 
 require_relative './lib/carfolio-scrapper'
