@@ -1,9 +1,6 @@
 #!/usr/bin/env ruby
 
-# Hosted at https://gist.github.com/botanicus/024075a0046a43c683b6
-
-# 5 hrs
-# 11:40 –
+# 7 hrs
 
 if ARGV.empty?
   abort "Usage: #{$0} A B C # Run scrapping for manufacturers starting with A-C."
