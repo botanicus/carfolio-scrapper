@@ -29,7 +29,6 @@ $stdout.sync = true
 # Main.
 Dir.mkdir('specs') unless Dir.exist?('specs')
 Dir.mkdir('data')  unless Dir.exist?('data')
-Dir.chdir('specs')
 
 # Group manufacturers by the first letter.
 manufacturers = Manufacturer.parse_specs_page
@@ -50,7 +49,7 @@ overall_time_in_mins = time do
     puts "~ Processing manufacturers starting with '#{first_char}'."
 
     time_per_letter_in_mins = time do
-      CSV.open("#{first_char}.csv", 'w') do |csv|
+      CSV.open("specs/#{first_char}.csv", 'w') do |csv|
         csv << Spec::FIELDS
         while manufacturer = groups[first_char].shift
           File.open("dump-#{Time.now.to_i}", 'w') { |file| ObjectSpace.each_object { |object| file.puts(object.inspect) } }
