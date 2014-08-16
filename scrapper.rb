@@ -5,7 +5,7 @@
 # ./scrapper.rb A B C # Run for manufacturers starting with A-C.
 # ./scrapper.rb       # Run for all manufacturers.
 
-puts "PID #{Process.pid}"
+puts "PID #{Process.pid}\n\n"
 
 ARGV.push(*('A'..'Z').to_a) if ARGV.empty?
 
@@ -29,6 +29,7 @@ $stdout.sync = true
 # Main.
 Dir.mkdir('specs') unless Dir.exist?('specs')
 Dir.chdir('specs')
+Dir.chdir('data')
 
 # Group manufacturers by the first letter.
 manufacturers = Manufacturer.parse_specs_page
