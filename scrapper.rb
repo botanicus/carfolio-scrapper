@@ -55,9 +55,9 @@ overall_time_in_mins = time do
         while manufacturer = groups[first_char].shift
           # File.open("dump-#{Time.now.to_i}", 'w') { |file| ObjectSpace.each_object { |object| file.puts(object.inspect) } }
           begin
+            attempts ||= 0
             puts "  ~> #{manufacturer.name}"
             report_objects ###
-            attempts ||= 0
             specs = manufacturer.specs
             while spec = specs.shift
               begin
