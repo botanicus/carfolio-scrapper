@@ -51,11 +51,19 @@ class TorProxy
   end
 
   def switch
+    # Make sure we're not too fast, otherwise
+    # Tor will hold us even longer. Check the logs.
+    if (Time.now - @last_switch) > 2.5
+      sleep Time.now - @last_switch
+    end
+
     localhost.cmd(SIGNAL_NEWNYM) do |response|
       unless response == OK_250
         raise "Cannot switch Tor to a new route! Response was: #{response.chomp}"
       end
     end
+
+    @last_switch = Time.now
   rescue Errno::ECONNREFUSED => error
     raise "#{error.message}. Is Tor running?"
   rescue Errno::ECONNRESET, Errno::EPIPE

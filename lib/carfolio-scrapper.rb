@@ -76,3 +76,18 @@ def log_error(label, error, should_retry)
   warn "[ERROR] #{error.class}: #{error.message} occured when #{label}. #{action}"
   warn error.backtrace
 end
+
+def report_objects
+  GC.start
+
+  list = ObjectSpace.each_object.group_by { |object| object.class }
+  list = list.map  { |klass, objects| [klass, objects.length] }
+  list = list.sort { |pair_a, pair_b| pair_a[1] <=> pair_b[1] }
+
+  offenders = list[(list.length - 10)..-1]
+  report = offenders.map do |klass, count|
+    "#{klass}: #{count}"
+  end
+
+  warn "REPORT: #{report.join(', ')}"
+end

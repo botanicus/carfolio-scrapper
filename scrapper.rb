@@ -56,6 +56,7 @@ overall_time_in_mins = time do
           # File.open("dump-#{Time.now.to_i}", 'w') { |file| ObjectSpace.each_object { |object| file.puts(object.inspect) } }
           begin
             puts "  ~> #{manufacturer.name}"
+            report_objects ###
             attempts = 0
             specs = manufacturer.specs
             while spec = specs.shift
@@ -68,6 +69,7 @@ overall_time_in_mins = time do
                 retry if should_retry
               end
             end
+            report_objects ###
           rescue => error
             should_retry = attempts < 3; attempts += 1
             log_error("processing manufacturer #{manufacturer.name}", error, should_retry)
