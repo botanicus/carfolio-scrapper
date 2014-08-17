@@ -4,12 +4,12 @@
 
 ```
 # Download the code.
-git clone https://gist.github.com/024075a0046a43c683b6.git scrapper
+git clone git@github.com:botanicus/carfolio-scrapper.git
 
 # Fetch dependencies.
 # This assumes you have bundler installed.
 # If not, run gem install bundler.
-cd scrapper
+cd carfolio-scrapper
 bundle
 
 # Run the scrapper.
@@ -20,5 +20,4 @@ After you run the scrapper, you should find a new directory called `specs` with 
 
 # Notes
 
-- There's a memory leak. Eventually it seems to stabilise on 236 MB.
-- This happens many times in a row: [ERROR] UnexpectedHttpStatusError Unexpected HTTP status: 302 on http://webcache.googleusercontent.com/search?q=cache:http://www.carfolio.com/specifications/models/car/?car=75988. Requesting new IP & retrying.
+Memory consumption is high, but currently there doesn't seem to be any memory leak (at least when using the cached pages). When processing the whole data set, the memory consumption climb to 268 MB and stays there.
