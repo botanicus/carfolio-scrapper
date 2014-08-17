@@ -57,11 +57,11 @@ overall_time_in_mins = time do
           begin
             puts "  ~> #{manufacturer.name}"
             report_objects ###
-            attempts = 0
+            attempts = 0 unless defined?(attempts)
             specs = manufacturer.specs
             while spec = specs.shift
               begin
-                spec_attempts = 0
+                spec_attempts = 0 unless defined?(spec_attempts)
                 csv << spec.to_row
               rescue => error
                 should_retry = spec_attempts < 3; spec_attempts += 1
