@@ -35,11 +35,11 @@ def get(url)
     while chunk = response.body.readpartial
       body += chunk
     end
-    STDERR.puts "[LOG] HTTP #{response.status} #{url}"
+    warn "[LOG] HTTP #{response.status} #{url}"
     return body
   end
 rescue Timeout::Error, IOError, SOCKSError::TTLExpired, Net::ReadTimeout, Net::OpenTimeout, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError, UnexpectedHttpStatusError => error
-  STDERR.puts "[ERROR] #{error.class} #{error.message}. Requesting new IP & retrying."
+  warn "[ERROR] #{error.class} #{error.message}. Requesting new IP & retrying."
   $tor.switch
   retry
 end

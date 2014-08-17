@@ -31,30 +31,35 @@ class TorProxy
     @telnet_opts ||= {
       'Host'    => @host,
       'Port'    => @control_port,
-      'Timeout' => 10,
+      'Timeout' => false,
       'Prompt'  => /250 OK\n/
     }
   end
 
   def localhost
-    Net::Telnet.new(self.telnet_opts)
+    @localhost ||= begin
+      localhost = Net::Telnet.new(self.telnet_opts)
+
+      localhost.cmd(AUTHENTICATE) do |response|
+        unless response == OK_250
+          raise "Cannot authenticate! Response was: #{response.chomp}"
+        end
+      end
+
+      localhost
+    end
   end
 
   def switch
-    localhost.cmd(AUTHENTICATE) do |response|
-      unless response == OK_250
-        raise "Cannot authenticate! Response was: #{response.chomp}"
-      end
-    end
-
     localhost.cmd(SIGNAL_NEWNYM) do |response|
       unless response == OK_250
         raise "Cannot switch Tor to a new route! Response was: #{response.chomp}"
       end
     end
-
-    localhost.close
   rescue Errno::ECONNREFUSED => error
     raise "#{error.message}. Is Tor running?"
+  rescue Errno::ECONNRESET, Errno::EPIPE
+    @localhost = nil
+    retry
   end
 end
