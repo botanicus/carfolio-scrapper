@@ -77,6 +77,16 @@ def log_error(label, error, should_retry)
   warn error.backtrace
 end
 
+def report_strings
+  list = ObjectSpace.each_object(String).map do |string|
+    [string, string.bytesize]
+  end
+
+  list = list.sort { |pair_a, pair_b| pair_a[1] <=> pair_b[1] }
+  warn "Total: #{list.reduce(0) { |sum, pair| sum + pair[1] }}"
+  warn "Longest string: #{list[-1][0]}"
+end
+
 def report_objects
   GC.start
 
@@ -90,4 +100,5 @@ def report_objects
   end
 
   warn "REPORT: #{report.join(', ')}"
+  report_strings
 end

@@ -64,14 +64,14 @@ overall_time_in_mins = time do
                 spec_attempts ||= 0
                 csv << spec.to_row
               rescue => error
-                should_retry = spec_attempts < 3; spec_attempts += 1
+                should_retry = spec_attempts < 5; spec_attempts += 1
                 log_error("processing spec #{spec.name}", error, should_retry)
                 retry if should_retry
               end
             end
             report_objects ###
           rescue => error
-            should_retry = attempts < 3; attempts += 1
+            should_retry = attempts < 5; attempts += 1
             log_error("processing manufacturer #{manufacturer.name}", error, should_retry)
             retry if should_retry
           end
