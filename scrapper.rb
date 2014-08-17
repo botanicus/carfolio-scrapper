@@ -50,6 +50,7 @@ overall_time_in_mins = time do
 
     time_per_letter_in_mins = time do
       CSV.open("specs/#{first_char}.csv", 'w') do |csv|
+        csv.sync = true # No buffering.
         csv << Spec::FIELDS
         while manufacturer = groups[first_char].shift
           File.open("dump-#{Time.now.to_i}", 'w') { |file| ObjectSpace.each_object { |object| file.puts(object.inspect) } }
