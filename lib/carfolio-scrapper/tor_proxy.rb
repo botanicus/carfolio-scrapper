@@ -53,7 +53,7 @@ class TorProxy
   def switch
     # Make sure we're not too fast, otherwise
     # Tor will hold us even longer. Check the logs.
-    if @last_switch && (Time.now - @last_switch) < 2.5
+    if @last_switch && (Time.now - @last_switch) < 7.5
       warn "[WARN] Waiting before switching IP for #{Time.now - @last_switch}s."
       sleep Time.now - @last_switch
     end
