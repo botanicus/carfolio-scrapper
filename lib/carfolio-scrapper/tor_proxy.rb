@@ -50,12 +50,18 @@ class TorProxy
     end
   end
 
+  WAIT_SECONDS = 2.5
+
   def switch
     # Make sure we're not too fast, otherwise
     # Tor will hold us even longer. Check the logs.
-    if @last_switch && (Time.now - @last_switch) < 7.5
-      warn "[WARN] Waiting before switching IP for #{Time.now - @last_switch}s."
-      sleep Time.now - @last_switch
+    #
+    # This is the bottleneck of the app.
+    waited_already = Time.now - @last_switch
+    if @last_switch && waited_already < WAIT_SECONDS
+      will_wait = WAIT_SECONDS - waited_already
+      warn "[WARN] Waiting before switching IP for #{will_wait}s."
+      sleep will_wait
     end
 
     localhost.cmd(SIGNAL_NEWNYM) do |response|
