@@ -74,4 +74,5 @@ end
 def log_error(label, error, should_retry)
   action = should_retry ? "Retrying." : "Skipping for now."
   warn "[ERROR] #{error.class}: #{error.message} occured when #{label}. #{action}"
+  warn error.backtrace
 end

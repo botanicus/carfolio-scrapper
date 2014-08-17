@@ -53,7 +53,7 @@ overall_time_in_mins = time do
         csv.sync = true # No buffering.
         csv << Spec::FIELDS
         while manufacturer = groups[first_char].shift
-          File.open("dump-#{Time.now.to_i}", 'w') { |file| ObjectSpace.each_object { |object| file.puts(object.inspect) } }
+          # File.open("dump-#{Time.now.to_i}", 'w') { |file| ObjectSpace.each_object { |object| file.puts(object.inspect) } }
           begin
             puts "  ~> #{manufacturer.name}"
             attempts = 0
